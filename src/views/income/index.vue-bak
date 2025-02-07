@@ -184,7 +184,16 @@
               </el-date-picker>
             </el-form-item>
           </el-col>
-
+<!--          <el-col-->
+<!--            v-if="searchField.length % 4 == 0"-->
+<!--            :sm="24"-->
+<!--            :xs="24"-->
+<!--            :md="12"-->
+<!--            :xl="6"-->
+<!--            :lg="6"-->
+<!--          >-->
+<!--            <el-form-item label=" "><el-input hidden /></el-form-item>-->
+<!--          </el-col>-->
           <el-col
             style="position: absolute;right: 0;bottom: 0px"
             :sm="24"
@@ -221,26 +230,43 @@
       </el-form>
     </template>
     <template #wrapper>
-      <el-col :span="1.5">
-        <div style="display: flex;height: 32px;justify-items: center;align-items: center">
-          <div class="count-item">
-            <span class="label">当前计算月份:</span>
-            <span
-                class="num"
-                style="color: #4CD964"
-            >2</span>
-            <span class="unit">&nbsp;月;</span>
-          </div>
-          <div class="count-item">
-            <span class="label">当月计算天数:</span>
-            <span
-                class="num"
-                style="color: #4CD964"
-            >30</span>
-            <span class="unit">&nbsp;天;</span>
-          </div>
-        </div>
-      </el-col>
+<!--      <el-row-->
+<!--        :gutter="10"-->
+<!--        class="mb8"-->
+<!--        style="transform: translateY(-2px);height: 32px"-->
+<!--      >-->
+<!--        <el-col :span="1.5">-->
+<!--          <a-button-->
+<!--            v-permisaction="['admin:rsHostIncome:add']"-->
+<!--            type="primary"-->
+<!--            icon="plus"-->
+<!--            @click="handleAdd"-->
+<!--          >新增-->
+<!--          </a-button>-->
+<!--        </el-col>-->
+<!--        <el-col :span="1.5">-->
+<!--          <a-button-->
+<!--            v-permisaction="['admin:rsHostIncome:edit']"-->
+<!--            type="success"-->
+<!--            icon="edit"-->
+<!--            size="mini"-->
+<!--            :disabled="single"-->
+<!--            @click="handleUpdate"-->
+<!--          >修改-->
+<!--          </a-button>-->
+<!--        </el-col>-->
+<!--        <el-col :span="1.5">-->
+<!--          <a-button-->
+<!--            v-permisaction="['admin:rsHostIncome:remove']"-->
+<!--            type="danger"-->
+<!--            icon="delete"-->
+<!--            :disabled="multiple"-->
+<!--            @click="handleDelete"-->
+<!--          >删除-->
+<!--          </a-button>-->
+<!--        </el-col>-->
+<!--      </el-row>-->
+
       <div style="flex: 1">
         <el-table
           v-loading="loading"
@@ -248,9 +274,13 @@
           :data="rsHostIncomeList"
           @selection-change="handleSelectionChange"
         >
-
           <el-table-column
-            label="主机名称"
+            type="selection"
+            width="55"
+            align="center"
+          />
+          <el-table-column
+            label="结算日期"
             align="center"
             :show-overflow-tooltip="true"
           >
@@ -259,7 +289,56 @@
             </template>
           </el-table-column>
           <el-table-column
-            label="当月结算收益"
+            label="业务名称"
+            align="center"
+            :show-overflow-tooltip="true"
+          >
+            <template slot-scope="scope">
+              <span>{{selectDictLabel(businessOptions, scope.row.buId)}}</span>
+            </template>
+          </el-table-column>
+          <el-table-column
+            label="主机名称"
+            width="240"
+            align="center"
+            prop="hostName"
+            :show-overflow-tooltip="true"
+          >
+            <template slot-scope="scope">
+              <a style="color: #1890ff" @click="toHost(scope.row)">
+                {{scope.row.hostName}}
+              </a>
+            </template>
+          </el-table-column>
+          <el-table-column
+            label="单价(元/G/月)"
+            align="center"
+            prop="avgDayPrice"
+            :show-overflow-tooltip="true"
+          />
+          <el-table-column
+            label="计费95带宽(G)"
+            align="center"
+            width="140"
+            prop="settleBandwidth"
+            :show-overflow-tooltip="true"
+          >
+            <template slot-scope="scope">
+              <span>{{ scope.row.bandwidth95 }}</span>
+            </template>
+          </el-table-column>
+          <el-table-column
+            label="预估收益"
+            align="center"
+            prop="income"
+            :show-overflow-tooltip="true"
+          >
+            <template slot-scope="scope">
+              <span>{{ scope.row.income }}</span>
+            </template>
+          </el-table-column>
+          <el-table-column
+            label="结算收益"
             align="center"
             prop="settlePrice"
             :show-overflow-tooltip="true"
@@ -269,41 +348,60 @@
             </template>
           </el-table-column>
           <el-table-column
-              label="当月成本"
-              align="center"
-              prop="settlePrice"
-              :show-overflow-tooltip="true"
-          >
-            <template slot-scope="scope">
-              <span>{{ scope.row.settlePrice }}</span>
-            </template>
-          </el-table-column>
-          <el-table-column
-              label="毛利润"
-              align="center"
-              prop="settlePrice"
-              :show-overflow-tooltip="true"
-          >
-            <template slot-scope="scope">
-              <span>{{ scope.row.settlePrice }}</span>
-            </template>
-          </el-table-column>
-          <el-table-column
-            width="200"
-            fixed="right"
-            label="操作"
+            label="SLA扣费"
             align="center"
-            class-name="small-padding fixed-width"
+            prop="slaPrice"
+            :show-overflow-tooltip="true"
           >
             <template slot-scope="scope">
-              <el-button
-                size="mini"
-                type="text"
-                icon="el-icon-view"
-              >查看明细
-              </el-button>
+              <span>{{ scope.row.slaPrice }}</span>
             </template>
           </el-table-column>
+          <el-table-column
+            label="SLA原因"
+            align="center"
+            prop="slaInfo"
+            :show-overflow-tooltip="true"
+          >
+            <template slot-scope="scope">
+              <span>{{ scope.row.slaInfo }}</span>
+            </template>
+          </el-table-column>
+<!--          <el-table-column-->
+<!--            width="200"-->
+<!--            fixed="right"-->
+<!--            label="操作"-->
+<!--            align="center"-->
+<!--            class-name="small-padding fixed-width"-->
+<!--          >-->
+<!--            <template slot-scope="scope">-->
+<!--              <el-button-->
+<!--                size="mini"-->
+<!--                type="text"-->
+<!--                icon="el-icon-view"-->
+<!--                @click="handleView(scope.row,scope.index)"-->
+<!--              >详情-->
+<!--              </el-button>-->
+<!--              <el-button-->
+<!--                slot="reference"-->
+<!--                v-permisaction="['admin:rsHostIncome:edit']"-->
+<!--                size="mini"-->
+<!--                type="text"-->
+<!--                icon="el-icon-edit"-->
+<!--                @click="handleUpdate(scope.row)"-->
+<!--              >修改-->
+<!--              </el-button>-->
+<!--              <el-button-->
+<!--                slot="reference"-->
+<!--                v-permisaction="['admin:rsHostIncome:remove']"-->
+<!--                size="mini"-->
+<!--                type="text"-->
+<!--                icon="el-icon-delete"-->
+<!--                @click="handleDelete(scope.row)"-->
+<!--              >删除-->
+<!--              </el-button>-->
+<!--            </template>-->
+<!--          </el-table-column>-->
         </el-table>
       </div>
       <div style="height: 45px;padding-top: 5px">
@@ -608,46 +706,3 @@ export default {
   }
 }
 </script>
-<style scoped lang="scss">
-.el-dropdown-link {
-  cursor: pointer;
-  color: #409EFF;
-  font-size: 12px;
-}
-.el-icon-arrow-down {
-  font-size: 12px;
-}
-.ant-tooltip-inner{
-  width: max-content !important;
-}
-
-.ant-drawer-body{
-  padding: 15px !important;
-}
-.count-item {
-  margin-left: 5px;
-}
-.count-item .label {
-  color: rgba(0, 0, 0, 0.45)
-}
-.count-item .num {
-  font-size: 24px;
-}
-.count-item .unit {
-  transform: translateY(2px);
-}
-.table-card {
-  height: 100%;
-}
-.cu-table {
-  ::v-deep .el-icon-copy-document{
-    cursor:pointer;
-    float: right;
-    margin-top: 4px;
-  }
-}
-.empty {
-  color: #ff0000;
-}
-
-</style>
