@@ -13,6 +13,27 @@
           style="position: relative"
         >
           <el-col
+              :sm="24"
+              :xs="24"
+              :md="12"
+              :xl="6"
+              :lg="6"
+                  v-show="searchField.includes('income_month')">
+            <el-form-item
+                label="结算日期:"
+                prop="incomeMonth"
+            >
+              <el-date-picker
+                  v-model="queryParams.month"
+                  type="month"
+                  @change="handleMonthChange"
+                  :style="{width: '100%'}"
+                  placeholder="选择月">
+              </el-date-picker>
+            </el-form-item>
+          </el-col>
+
+          <el-col
             v-show="searchField.includes('hostSearch')"
             :sm="24"
             :xs="24"
@@ -167,26 +188,9 @@
             </el-select>
             </el-form-item>
           </el-col>
-          <el-col :sm="24" :xs="24" :md="12" :xl="6" :lg="6" v-show="searchField.includes('startTimeAt')">
-            <el-form-item
-              label="结算日期:"
-              prop="startTimeAt"
-            >
-              <el-date-picker
-                style="width: 100%"
-                size="small"
-                v-model="dateRange"
-                value-format="yyyy-MM-dd hh:MM:ss"
-                type="daterange"
-                range-separator="至"
-                start-placeholder="开始日期"
-                end-placeholder="结束日期">
-              </el-date-picker>
-            </el-form-item>
-          </el-col>
 
           <el-col
-            style="position: absolute;right: 0;bottom: 0px"
+            style="position: relative;right: 0;bottom: 0px;float: right;top: 6px"
             :sm="24"
             :xs="24"
             :md="12"
@@ -228,7 +232,7 @@
             <span
                 class="num"
                 style="color: #4CD964"
-            >2</span>
+            >{{thisMonth}}</span>
             <span class="unit">&nbsp;月;</span>
           </div>
           <div class="count-item">
@@ -236,7 +240,7 @@
             <span
                 class="num"
                 style="color: #4CD964"
-            >30</span>
+            >{{thisDay}}</span>
             <span class="unit">&nbsp;天;</span>
           </div>
         </div>
@@ -255,7 +259,9 @@
             :show-overflow-tooltip="true"
           >
             <template slot-scope="scope">
-              <span>{{ scope.row.createdAt}}</span>
+              <a style="color: #1890ff" @click="toHost(scope.row)">
+                {{scope.row.remark}}
+              </a>
             </template>
           </el-table-column>
           <el-table-column
@@ -265,7 +271,7 @@
             :show-overflow-tooltip="true"
           >
             <template slot-scope="scope">
-              <span>{{ scope.row.settlePrice }}</span>
+              <span>{{ scope.row.income_dat.income }}</span>
             </template>
           </el-table-column>
           <el-table-column
@@ -275,7 +281,7 @@
               :show-overflow-tooltip="true"
           >
             <template slot-scope="scope">
-              <span>{{ scope.row.settlePrice }}</span>
+              <span>{{ scope.row.income_dat.cost }}</span>
             </template>
           </el-table-column>
           <el-table-column
@@ -285,7 +291,7 @@
               :show-overflow-tooltip="true"
           >
             <template slot-scope="scope">
-              <span>{{ scope.row.settlePrice }}</span>
+              <span>{{ scope.row.income_dat.gross_profit }}</span>
             </template>
           </el-table-column>
           <el-table-column
@@ -299,6 +305,7 @@
               <el-button
                 size="mini"
                 type="text"
+                @click="detailClick(scope.row)"
                 icon="el-icon-view"
               >查看明细
               </el-button>
@@ -315,56 +322,18 @@
           @pagination="getList"
         />
       </div>
-      <a-drawer
-        v-if="detailVisible"
-        placement="right"
-        :header-style="{position: 'sticky', top: 0, zIndex: 999}"
-        :closable="true"
-        :width="'65%'"
-        :visible="detailVisible"
-        @close="detailVisible = false"
-      >
-        <template #title>
-          详情
-          <a-button
-            type="link"
-            @click="reLoadDetail"
-          >
-            <a-icon type="reload" />刷新
-          </a-button>
-        </template>
-        <Detail
-          :id="rowId"
-          ref="Detail"
-        />
-      </a-drawer>
-
-      <!-- 添加或修改对话框 -->
-      <a-modal
-        :title="title"
-        :visible="open"
-        :centered="true"
-        ok-text="确定"
-        cancel-text="取消"
-        width="800px"
-        @ok="submitForm"
-        @cancel="cancel"
-      >
-        <el-form
-          ref="form"
-          :model="form"
-          :rules="rules"
-          label-width="120px"
-        >
-          <el-row />
-        </el-form>
-      </a-modal>
     </template>
   </BasicLayout>
 </template>
 
 <script>
-import { addRsHostIncome, delRsHostIncome, getRsHostIncome, listRsHostIncome, updateRsHostIncome } from '@/api/income'
+import {
+  addRsHostIncome,
+  delRsHostIncome,
+  getRsHostIncome,
+  listRsHostMonthIncome,
+  updateRsHostIncome
+} from '@/api/income'
 
 import Detail from './detail.vue'
 import { listRsBusiness } from '@/api/cmdb/rc-business'
@@ -373,11 +342,10 @@ import { listRsIdc } from '@/api/cmdb/rc-idc'
 
 export default {
   name: 'RsHostIncome',
-  components: {
-    Detail
-  },
   data() {
     return {
+      thisMonth:"",
+      thisDay:"",
       // 遮罩层
       loading: true,
       // 选中数组
@@ -402,13 +370,18 @@ export default {
       businessOptions: [],
       idcIdOptions: [],
       customIdOptions: [],
-      searchField: ['hostSearch', 'businessId', 'idcId', 'customId', 'isp', 'region', 'startTimeAt'],
+      searchField: ['hostSearch','income_month',
+        'businessId', 'idcId',
+        'customId', 'isp',
+        'region', 'startTimeAt'],
       // 关系表类型
 
       // 查询参数
       queryParams: {
         pageIndex: 1,
         pageSize: 10,
+        incomeMonth:undefined,
+        month:undefined,
         hostSearch: undefined,
         isp: undefined,
         idcId: undefined,
@@ -437,7 +410,7 @@ export default {
     }
   },
   created() {
-    this.searchField = this.searchField.slice(0, 3)
+    this.searchField = this.searchField.slice(0, 4)
     this.getList()
     this.regionOptions = this.$store.getters.region
     listRsBusiness({ pageSize: -1 }).then(response => {
@@ -452,20 +425,32 @@ export default {
     listRsIdc({ pageSize: -1 }).then(response => {
       this.idcIdOptions = response.data.list.map((item) => { return { label: item.number + item['name'], value: item['id'] + '' } })
     })
+
   },
   methods: {
+    detailClick(row) {
+      this.$router.push({ path: '/income/detail',
+        query: { hostId: row.id,month: this.queryParams.incomeMonth }})
+
+    },
     /** 查询参数列表 */
     getList() {
       this.loading = true
-      listRsHostIncome(this.addDateRange(this.formatQueryParams(this.queryParams), this.dateRange)).then(response => {
-        this.rsHostIncomeList = response.data.list
+      listRsHostMonthIncome(this.addDateRange(this.formatQueryParams(this.queryParams), this.dateRange)).then(response => {
+        this.rsHostIncomeList = response.data.list.dat
         this.total = response.data.count
         this.loading = false
+        this.thisMonth = response.data.list.month
+        this.thisDay = response.data.list.day
+
+        if (this.queryParams.incomeMonth === undefined){
+          this.queryParams.incomeMonth = this.thisMonth
+        }
       }
       )
     },
     toHost(row) {
-      this.$router.push({ path: '/cmdb/rs-host', query: { hostId: row.hostId }})
+      this.$router.push({ path: '/cmdb/rs-host', query: { hostId: row.id }})
     },
     // 取消按钮
     cancel() {
@@ -509,11 +494,25 @@ export default {
       this.queryParams.pageIndex = 1
       this.getList()
     },
+    handleMonthChange(date) {
+      if (date) {
+        // 提取年份和月份
+        const year = date.getFullYear();
+        const month = date.getMonth() + 1; // 月份从 0 开始，需要加 1
+        this.selectedMonth = `${year}-${month.toString().padStart(2, "0")}`;
+        this.queryParams.incomeMonth = `${year}-${month.toString().padStart(2, "0")}`;
+      } else {
+        this.queryParams.incomeMonth = undefined; // 如果日期为空，清空选择的月份
+      }
+    },
     /** 展开收起 */
     toggleAdvanced() {
-      const fields = ['hostSearch', 'businessId', 'idcId', 'customId', 'isp', 'region', 'startTimeAt']
-      if (this.searchField.length > 3) {
-        this.searchField = fields.splice(0, 3)
+      const fields = ['hostSearch','income_month',
+        'businessId', 'idcId',
+        'customId', 'isp',
+        'region', 'startTimeAt']
+      if (this.searchField.length > 4) {
+        this.searchField = fields.splice(0, 4)
       } else {
         this.searchField = fields
       }

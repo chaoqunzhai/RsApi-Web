@@ -1,6 +1,14 @@
 import request from '@/utils/request'
 
 // 查询RsHostIncome列表
+export function listRsHostMonthIncome(query) {
+  return request({
+    url: '/api/v1/rs-host-income/monthCompute',
+    method: 'get',
+    params: query
+  })
+}
+// 查询RsHostIncome列表
 export function listRsHostIncome(query) {
   return request({
     url: '/api/v1/rs-host-income',
