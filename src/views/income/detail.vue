@@ -48,6 +48,7 @@
           />
           <el-table-column
               label="结算日期"
+              width="140"
               align="center"
               :show-overflow-tooltip="true"
           >
@@ -66,7 +67,6 @@
           </el-table-column>
           <el-table-column
               label="主机名称"
-              width="240"
               align="center"
               prop="hostName"
               :show-overflow-tooltip="true"
@@ -78,9 +78,9 @@
             </template>
           </el-table-column>
           <el-table-column
-              label="单价(元/G/月)"
+              label="成本"
               align="center"
-              prop="avgDayPrice"
+              prop="day_cost"
               :show-overflow-tooltip="true"
           />
           <el-table-column
@@ -134,41 +134,6 @@
               <span>{{ scope.row.slaInfo }}</span>
             </template>
           </el-table-column>
-          <!--          <el-table-column-->
-          <!--            width="200"-->
-          <!--            fixed="right"-->
-          <!--            label="操作"-->
-          <!--            align="center"-->
-          <!--            class-name="small-padding fixed-width"-->
-          <!--          >-->
-          <!--            <template slot-scope="scope">-->
-          <!--              <el-button-->
-          <!--                size="mini"-->
-          <!--                type="text"-->
-          <!--                icon="el-icon-view"-->
-          <!--                @click="handleView(scope.row,scope.index)"-->
-          <!--              >详情-->
-          <!--              </el-button>-->
-          <!--              <el-button-->
-          <!--                slot="reference"-->
-          <!--                v-permisaction="['admin:rsHostIncome:edit']"-->
-          <!--                size="mini"-->
-          <!--                type="text"-->
-          <!--                icon="el-icon-edit"-->
-          <!--                @click="handleUpdate(scope.row)"-->
-          <!--              >修改-->
-          <!--              </el-button>-->
-          <!--              <el-button-->
-          <!--                slot="reference"-->
-          <!--                v-permisaction="['admin:rsHostIncome:remove']"-->
-          <!--                size="mini"-->
-          <!--                type="text"-->
-          <!--                icon="el-icon-delete"-->
-          <!--                @click="handleDelete(scope.row)"-->
-          <!--              >删除-->
-          <!--              </el-button>-->
-          <!--            </template>-->
-          <!--          </el-table-column>-->
         </el-table>
       </div>
       <div style="height: 45px;padding-top: 5px">

@@ -17,8 +17,7 @@
               :xs="24"
               :md="12"
               :xl="6"
-              :lg="6"
-                  v-show="searchField.includes('income_month')">
+              :lg="6">
             <el-form-item
                 label="结算日期:"
                 prop="incomeMonth"
@@ -34,7 +33,6 @@
           </el-col>
 
           <el-col
-            v-show="searchField.includes('hostSearch')"
             :sm="24"
             :xs="24"
             :md="12"
@@ -43,9 +41,9 @@
           >
             <el-form-item
               label="主机名/SN:"
-              prop="hostSearch"
+              prop="hostname"
             ><el-input
-              v-model="queryParams.hostSearch"
+              v-model="queryParams.hostname"
               type="textarea"
               :rows="1"
               placeholder="请输入"
@@ -56,7 +54,27 @@
             </el-form-item>
           </el-col>
           <el-col
-            v-show="searchField.includes('businessId')"
+              :sm="24"
+              :xs="24"
+              :md="12"
+              :xl="6"
+              :lg="6"
+          >
+            <el-form-item
+                label="主机名Remark:"
+                prop="remark"
+            ><el-input
+                v-model="queryParams.remark"
+                type="textarea"
+                :rows="1"
+                placeholder="请输入"
+                clearable
+                size="small"
+                @keyup.enter.native="handleQuery"
+            />
+            </el-form-item>
+          </el-col>
+          <el-col
             :sm="24"
             :xs="24"
             :md="12"
@@ -84,7 +102,6 @@
             </el-form-item>
           </el-col>
           <el-col
-            v-show="searchField.includes('idcId')"
             :sm="24"
             :xs="24"
             :md="12"
@@ -112,7 +129,6 @@
             </el-form-item>
           </el-col>
           <el-col
-            v-show="searchField.includes('region')"
             :sm="24"
             :xs="24"
             :md="12"
@@ -136,7 +152,6 @@
             </el-form-item>
           </el-col>
           <el-col
-            v-show="searchField.includes('customId')"
             :sm="24"
             :xs="24"
             :md="12"
@@ -163,7 +178,6 @@
             </el-form-item>
           </el-col>
           <el-col
-            v-show="searchField.includes('isp')"
             :sm="24"
             :xs="24"
             :md="12"
@@ -207,18 +221,7 @@
                 style="margin-left: 10px"
                 @click="resetQuery"
               ><a-icon type="sync" />重置</a-button>
-              <a-button
-                type="link"
-                style="padding-right: 0"
-                @click="toggleAdvanced"
-              >
-                <template v-if="searchField.length > 3">
-                  收起<a-icon type="up" />
-                </template>
-                <template v-else>
-                  展开<a-icon type="down" />
-                </template>
-              </a-button>
+
             </el-form-item>
           </el-col>
         </el-row>
@@ -291,7 +294,19 @@
               :show-overflow-tooltip="true"
           >
             <template slot-scope="scope">
-              <span>{{ scope.row.income_dat.gross_profit }}</span>
+              <span v-if="scope.row.income_dat.gross_profit">
+                {{ scope.row.income_dat.gross_profit }}%</span>
+            </template>
+          </el-table-column>
+          <el-table-column
+              label="计算方式"
+              align="center"
+              prop="settlePrice"
+              :show-overflow-tooltip="true"
+          >
+            <template slot-scope="scope">
+              <span v-if="scope.row.cost_algorithm">
+                {{ scope.row.cost_algorithm }}</span>
             </template>
           </el-table-column>
           <el-table-column
@@ -370,7 +385,7 @@ export default {
       businessOptions: [],
       idcIdOptions: [],
       customIdOptions: [],
-      searchField: ['hostSearch','income_month',
+      searchField: ['hostname','income_month',
         'businessId', 'idcId',
         'customId', 'isp',
         'region', 'startTimeAt'],
@@ -382,7 +397,7 @@ export default {
         pageSize: 10,
         incomeMonth:undefined,
         month:undefined,
-        hostSearch: undefined,
+        hostname: undefined,
         isp: undefined,
         idcId: undefined,
         region: undefined,
@@ -507,7 +522,7 @@ export default {
     },
     /** 展开收起 */
     toggleAdvanced() {
-      const fields = ['hostSearch','income_month',
+      const fields = ['hostname','income_month',
         'businessId', 'idcId',
         'customId', 'isp',
         'region', 'startTimeAt']
