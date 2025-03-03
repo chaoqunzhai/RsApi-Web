@@ -1046,7 +1046,6 @@
       >
         <el-form
           ref="businessForm"
-          :inline="true"
           :model="idcForm"
           :rules="businessRules"
           label-width="80px"
@@ -1068,6 +1067,12 @@
               :value="dict.value"
             />
           </el-select>
+          </el-form-item>
+          <el-form-item
+              label="是否同步"
+              prop="id"
+          >
+            <el-checkbox v-model="idcForm.remote_tag">修改主机业务</el-checkbox>
           </el-form-item>
           <el-form-item>
             <a-button
@@ -1331,6 +1336,7 @@ export default {
       idcForm: {
         ids: undefined,
         status: undefined,
+        remote_tag:false,
         desc: undefined
       },
       statusForm: {},
@@ -1742,8 +1748,9 @@ export default {
         if (valid) {
           console.log(this.idcForm)
           var { hostIds } = this.idcForm
+          var remote_tag = this.idcForm.remote_tag
           var business = this.idcForm.id.map(item => { return { id: item } })
-          hostSwitch({ hostIds, business: business }).then(response => {
+          hostSwitch({ hostIds,remote_tag, business: business }).then(response => {
             if (response.code === 200) {
               this.msgSuccess(response.msg)
               this.openBusiness = false

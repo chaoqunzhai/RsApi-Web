@@ -53,7 +53,7 @@
               :show-overflow-tooltip="true"
           >
             <template slot-scope="scope">
-              <span>{{ scope.row.createdAt}}</span>
+              <span>{{ scope.row.algDay}}</span>
             </template>
           </el-table-column>
           <el-table-column
@@ -112,6 +112,16 @@
           >
             <template slot-scope="scope">
               <span>{{ scope.row.settlePrice }}</span>
+            </template>
+          </el-table-column>
+          <el-table-column
+              label="结算日期"
+              align="center"
+              prop="settleTime"
+              :show-overflow-tooltip="true"
+          >
+            <template slot-scope="scope">
+              <span>{{ scope.row.settleTime }}</span>
             </template>
           </el-table-column>
           <el-table-column
