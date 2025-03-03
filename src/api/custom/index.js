@@ -35,6 +35,30 @@ export function updateRsCustom(data) {
   })
 }
 
+
+
+
+// 新增RsCustom
+export function addRsCustomIntegration(data) {
+  return request({
+    url: '/api/v1/rs-custom/integration',
+    method: 'post',
+    data: data
+  })
+}
+
+// 修改RsCustom
+export function updateRsCustomIntegration(data) {
+  return request({
+    url: '/api/v1/rs-custom/integration' + data.id,
+    method: 'put',
+    data: data
+  })
+}
+
+
+
+
 // 删除RsCustom
 export function delRsCustom(data) {
   return request({

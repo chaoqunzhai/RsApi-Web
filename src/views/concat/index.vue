@@ -498,7 +498,8 @@ export default {
       },
       rowId: undefined,
       // 表单校验
-      rules: { userName: [{ required: true, message: '姓名不能为空', trigger: 'blur' }],
+      rules: {
+        userName: [{ required: true, message: '姓名不能为空', trigger: 'blur' }],
         customId: [{ required: true, message: '所属客户不能为空', trigger: 'blur' }],
         buId: [{ required: true, message: '商务人员不能为空', trigger: 'blur' }],
         region: [{ required: true, message: '所在地区不能为空', trigger: 'blur' }],

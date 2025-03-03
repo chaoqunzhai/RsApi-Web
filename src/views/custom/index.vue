@@ -286,9 +286,10 @@
           ref="form"
           :model="form"
           :rules="rules"
-          label-width="80px"
+          label-width="120px"
         >
           <el-row>
+            <h3 >客户信息</h3>
             <el-col :span="12">
               <el-form-item
                 label="客户名称"
@@ -363,15 +364,118 @@
                 />
               </el-form-item>
             </el-col>
-            <el-col :span="24">
+          </el-row>
+          <el-row>
+            <h3>联系人信息</h3>
+            <el-col :span="12">
               <el-form-item
-                label="备注"
-                prop="desc"
+                  label="姓名"
+                  prop="userName"
               >
                 <el-input
-                  v-model="form.desc"
-                  type="textarea"
-                  placeholder="备注"
+                    v-model="form.userName"
+                    placeholder="姓名"
+                />
+              </el-form-item>
+            </el-col>
+            <el-col :span="12">
+              <el-form-item
+                  label="商务人员"
+                  prop="buId"
+              >
+                <el-select
+                    filterable
+                    v-model="form.buId"
+                    placeholder="请选择"
+                >
+                  <el-option
+                      v-for="dict in buIdOptions"
+                      :key="dict.value"
+                      :label="dict.label"
+                      :value="dict.value"
+                  />
+                </el-select>
+              </el-form-item>
+            </el-col>
+            <el-col :span="12">
+              <el-form-item
+                  label="联系电话"
+                  prop="phone"
+              >
+                <el-input
+                    v-model="form.phone"
+                    placeholder="联系电话"
+                />
+              </el-form-item>
+            </el-col>
+            <el-col :span="12">
+              <el-form-item
+                  label="联系邮箱"
+                  prop="email"
+              >
+                <el-input
+                    v-model="form.email"
+                    placeholder="联系邮箱"
+                />
+              </el-form-item>
+            </el-col>
+            <el-col :span="12">
+              <el-form-item
+                  label="所在地区"
+                  prop="region"
+              >
+                <el-cascader
+                    filterable
+                    v-model="form.user_region"
+                    :options="regionOptions"
+                    :props="regionProps"
+                    :style="{width: '100%'}"
+                    placeholder="请选择所在地区"
+                    clearable
+                />
+              </el-form-item>
+            </el-col>
+            <el-col :span="12">
+              <el-form-item
+                  label="部门"
+                  prop="dept"
+              >
+                <el-input
+                    v-model="form.dept"
+                    placeholder="部门"
+                />
+              </el-form-item>
+            </el-col>
+            <el-col :span="12">
+              <el-form-item
+                  label="职务"
+                  prop="duties"
+              >
+                <el-input
+                    v-model="form.duties"
+                    placeholder="职务"
+                />
+              </el-form-item>
+            </el-col>
+            <el-col :span="24">
+              <el-form-item
+                  label="详细地址"
+                  prop="user_address"
+              >
+                <el-input
+                    v-model="form.user_address"
+                    placeholder="详细地址"
+                />
+              </el-form-item>
+            </el-col>
+            <el-col :span="24">
+              <el-form-item
+                  label="备注"
+                  prop="desc"
+              >
+                <el-input
+                    v-model="form.desc"
+                    placeholder="备注"
                 />
               </el-form-item>
             </el-col>
@@ -383,9 +487,17 @@
 </template>
 
 <script>
-import { addRsCustom, delRsCustom, getRsCustom, listRsCustom, updateRsCustom } from '@/api/custom/index'
+import {
+  addRsCustom, addRsCustomIntegration,
+  delRsCustom,
+  getRsCustom,
+  listRsCustom,
+  updateRsCustom,
+  updateRsCustomIntegration
+} from '@/api/custom/index'
 
 import Detail from './detail.vue'
+import {getUserlistByRole} from "@/api/admin/sys-role";
 
 export default {
   name: 'RsCustom',
@@ -433,11 +545,19 @@ export default {
       // 表单参数
       form: {
       },
+      customIdOptions: [],
+      buIdOptions: [],
       rowId: undefined,
       // 表单校验
-      rules: { name: [{ required: true, message: '客户名称不能为空', trigger: 'blur' }],
+      rules: {
+        name: [{ required: true, message: '客户名称不能为空', trigger: 'blur' }],
         type: [{ required: true, message: '客户类型不能为空', trigger: 'blur' }],
-        cooperation: [{ required: true, message: '合作状态不能为空', trigger: 'blur' }]
+        cooperation: [{ required: true, message: '合作状态不能为空', trigger: 'blur' }],
+        userName: [{ required: true, message: '姓名不能为空', trigger: 'blur' }],
+        buId: [{ required: true, message: '商务人员不能为空', trigger: 'blur' }],
+        region: [{ required: true, message: '所在地区不能为空', trigger: 'blur' }],
+        address: [{ required: true, message: '详细地址不能为空', trigger: 'blur' }],
+        phone: [{ required: true, message: '联系电话不能为空', trigger: 'blur' }]
       }
     }
   },
@@ -448,6 +568,13 @@ export default {
     })
     this.getDicts('work_status').then(response => {
       this.cooperationOptions = response.data
+    })
+
+    listRsCustom({ pageSize: -1 }).then(response => {
+      this.customIdOptions = this.toDictData(response.data.list, 'name', 'id')
+    })
+    getUserlistByRole({ name: 'business_user' }).then(response => {
+      this.buIdOptions = this.toDictData(response.data.list, 'nickName', 'userId')
     })
     this.regionOptions = this.$store.getters.region
   },
@@ -489,6 +616,8 @@ export default {
       fieldsToConvert.push('type')
       fieldsToConvert.push('cooperation')
       fieldsToConvert.push('region')
+      fieldsToConvert.push('user_region')
+      fieldsToConvert.push('buId')
       // 遍历字段并进行转换
       fieldsToConvert.forEach(field => {
         if (mode === 'toString' && typeof result[field] === 'number') {
@@ -557,7 +686,8 @@ export default {
       this.$refs['form'].validate(valid => {
         if (valid) {
           if (this.form.id !== undefined) {
-            updateRsCustom({ ...this.convertFields(this.form, 'toNumber'), region: this.form.region.join(',') }).then(response => {
+            updateRsCustomIntegration({ ...this.convertFields(this.form, 'toNumber'),
+              region: this.form.region.join(','), user_region: this.form.user_region.join(',') }).then(response => {
               if (response.code === 200) {
                 this.msgSuccess(response.msg)
                 this.open = false
@@ -567,7 +697,8 @@ export default {
               }
             })
           } else {
-            addRsCustom({ ...this.convertFields(this.form, 'toNumber'), region: this.form.region.join(',') }).then(response => {
+            addRsCustomIntegration({ ...this.convertFields(this.form, 'toNumber'),
+              region: this.form.region.join(','),user_region: this.form.user_region.join(',') }).then(response => {
               if (response.code === 200) {
                 this.msgSuccess(response.msg)
                 this.open = false
