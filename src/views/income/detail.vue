@@ -3,18 +3,38 @@
   <BasicLayout>
     <template #header>
       <el-form
-          ref="queryForm"
-          :model="queryParams"
-          class="queryForm"
-          style="transform: translateY(4px)"
+        ref="queryForm"
+        :model="queryParams"
+        class="queryForm"
+        style="transform: translateY(4px)"
       >
         <el-row
-            :gutter="20"
-            style="position: relative"
+          :gutter="20"
+          style="position: relative"
         >
 
           <el-col
-              style="position: relative;right: 0;bottom: 0px;float: right;top: 6px"
+            :sm="24"
+            :xs="24"
+            :md="12"
+            :xl="6"
+            :lg="6"
+          >
+            <el-form-item
+              label="结算日期:"
+              prop="incomeMonth"
+            >
+              <el-date-picker
+                v-model="queryParams.month"
+                type="month"
+                :style="{width: '60%'}"
+                placeholder="选择月"
+                @change="handleMonthChange"
+              />
+            </el-form-item>
+          </el-col>
+          <el-col
+              style="position: absolute;right: 0;bottom: 0px"
               :sm="24"
               :xs="24"
               :md="12"
@@ -27,6 +47,10 @@
                   icon="search"
                   @click="handleQuery"
               >搜索</a-button>
+              <a-button
+                  style="margin-left: 10px"
+                  @click="resetQuery"
+              ><a-icon type="sync" />重置</a-button>
             </el-form-item>
           </el-col>
         </el-row>
@@ -36,109 +60,109 @@
 
       <div style="flex: 1">
         <el-table
-            v-loading="loading"
-            :height="'98%'"
-            :data="rsHostIncomeList"
-            @selection-change="handleSelectionChange"
+          v-loading="loading"
+          :height="'98%'"
+          :data="rsHostIncomeList"
+          @selection-change="handleSelectionChange"
         >
           <el-table-column
-              type="selection"
-              width="55"
-              align="center"
+            type="selection"
+            width="55"
+            align="center"
           />
           <el-table-column
-              label="结算日期"
-              width="140"
-              align="center"
-              :show-overflow-tooltip="true"
+            label="结算日期"
+            width="140"
+            align="center"
+            :show-overflow-tooltip="true"
           >
             <template slot-scope="scope">
-              <span>{{ scope.row.algDay}}</span>
+              <span>{{ scope.row.algDay }}</span>
             </template>
           </el-table-column>
           <el-table-column
-              label="业务名称"
-              align="center"
-              :show-overflow-tooltip="true"
+            label="业务名称"
+            align="center"
+            :show-overflow-tooltip="true"
           >
             <template slot-scope="scope">
-              <span>{{selectDictLabel(businessOptions, scope.row.buId)}}</span>
+              <span>{{ selectDictLabel(businessOptions, scope.row.buId) }}</span>
             </template>
           </el-table-column>
           <el-table-column
-              label="主机名称"
-              align="center"
-              prop="hostName"
-              :show-overflow-tooltip="true"
+            label="主机名称"
+            align="center"
+            prop="hostName"
+            :show-overflow-tooltip="true"
           >
             <template slot-scope="scope">
               <a style="color: #1890ff" @click="toHost(scope.row)">
-                {{scope.row.host_row.remark}}
+                {{ scope.row.host_row.remark }}
               </a>
             </template>
           </el-table-column>
           <el-table-column
-              label="成本"
-              align="center"
-              prop="day_cost"
-              :show-overflow-tooltip="true"
+            label="成本"
+            align="center"
+            prop="day_cost"
+            :show-overflow-tooltip="true"
           />
           <el-table-column
-              label="计费95带宽(G)"
-              align="center"
-              width="140"
-              prop="settleBandwidth"
-              :show-overflow-tooltip="true"
+            label="计费95带宽(G)"
+            align="center"
+            width="140"
+            prop="settleBandwidth"
+            :show-overflow-tooltip="true"
           >
             <template slot-scope="scope">
               <span>{{ scope.row.bandwidth95 }}</span>
             </template>
           </el-table-column>
           <el-table-column
-              label="预估收益"
-              align="center"
-              prop="income"
-              :show-overflow-tooltip="true"
+            label="预估收益"
+            align="center"
+            prop="income"
+            :show-overflow-tooltip="true"
           >
             <template slot-scope="scope">
               <span>{{ scope.row.income }}</span>
             </template>
           </el-table-column>
           <el-table-column
-              label="结算收益"
-              align="center"
-              prop="settlePrice"
-              :show-overflow-tooltip="true"
+            label="结算收益"
+            align="center"
+            prop="settlePrice"
+            :show-overflow-tooltip="true"
           >
             <template slot-scope="scope">
               <span>{{ scope.row.settlePrice }}</span>
             </template>
           </el-table-column>
           <el-table-column
-              label="结算日期"
-              align="center"
-              prop="settleTime"
-              :show-overflow-tooltip="true"
+            label="结算日期"
+            align="center"
+            prop="settleTime"
+            :show-overflow-tooltip="true"
           >
             <template slot-scope="scope">
               <span>{{ scope.row.settleTime }}</span>
             </template>
           </el-table-column>
           <el-table-column
-              label="SLA扣费"
-              align="center"
-              prop="slaPrice"
-              :show-overflow-tooltip="true"
+            label="SLA扣费"
+            align="center"
+            prop="slaPrice"
+            :show-overflow-tooltip="true"
           >
             <template slot-scope="scope">
               <span>{{ scope.row.slaPrice }}</span>
             </template>
           </el-table-column>
           <el-table-column
-              label="SLA原因"
-              align="center"
-              prop="slaInfo"
-              :show-overflow-tooltip="true"
+            label="SLA原因"
+            align="center"
+            prop="slaInfo"
+            :show-overflow-tooltip="true"
           >
             <template slot-scope="scope">
               <span>{{ scope.row.slaInfo }}</span>
@@ -148,53 +172,53 @@
       </div>
       <div style="height: 45px;padding-top: 5px">
         <pagination
-            v-show="total>0"
-            :total="total"
-            :page.sync="queryParams.pageIndex"
-            :limit.sync="queryParams.pageSize"
-            @pagination="getList"
+          v-show="total>0"
+          :total="total"
+          :page.sync="queryParams.pageIndex"
+          :limit.sync="queryParams.pageSize"
+          @pagination="getList"
         />
       </div>
       <a-drawer
-          v-if="detailVisible"
-          placement="right"
-          :header-style="{position: 'sticky', top: 0, zIndex: 999}"
-          :closable="true"
-          :width="'65%'"
-          :visible="detailVisible"
-          @close="detailVisible = false"
+        v-if="detailVisible"
+        placement="right"
+        :header-style="{position: 'sticky', top: 0, zIndex: 999}"
+        :closable="true"
+        :width="'65%'"
+        :visible="detailVisible"
+        @close="detailVisible = false"
       >
         <template #title>
           详情
           <a-button
-              type="link"
-              @click="reLoadDetail"
+            type="link"
+            @click="reLoadDetail"
           >
             <a-icon type="reload" />刷新
           </a-button>
         </template>
         <Detail
-            :id="rowId"
-            ref="Detail"
+          :id="rowId"
+          ref="Detail"
         />
       </a-drawer>
 
       <!-- 添加或修改对话框 -->
       <a-modal
-          :title="title"
-          :visible="open"
-          :centered="true"
-          ok-text="确定"
-          cancel-text="取消"
-          width="800px"
-          @ok="submitForm"
-          @cancel="cancel"
+        :title="title"
+        :visible="open"
+        :centered="true"
+        ok-text="确定"
+        cancel-text="取消"
+        width="800px"
+        @ok="submitForm"
+        @cancel="cancel"
       >
         <el-form
-            ref="form"
-            :model="form"
-            :rules="rules"
-            label-width="120px"
+          ref="form"
+          :model="form"
+          :rules="rules"
+          label-width="120px"
         >
           <el-row />
         </el-form>
@@ -264,7 +288,7 @@ export default {
         'value': 'code',
         'children': 'children'
       },
-      incomeMonth:'',
+      incomeMonth: '',
       // 表单参数
       form: {
       },
@@ -280,7 +304,7 @@ export default {
   created() {
     this.queryParams.hostId = this.$route.query.hostId
     this.queryParams.incomeMonth = this.$route.query.month
-    console.log("incomeMonth",this.queryParams)
+    // console.log("incomeMonth",this.queryParams)
     this.searchField = this.searchField.slice(0, 3)
     this.getList()
     this.regionOptions = this.$store.getters.region
@@ -298,15 +322,25 @@ export default {
     })
   },
   methods: {
+    handleMonthChange(date) {
+      if (date) {
+        // 提取年份和月份
+        const year = date.getFullYear()
+        const month = date.getMonth() + 1 // 月份从 0 开始，需要加 1
+        this.selectedMonth = `${year}-${month.toString().padStart(2, '0')}`
+        this.queryParams.incomeMonth = `${year}-${month.toString().padStart(2, '0')}`
+      } else {
+        this.queryParams.incomeMonth = undefined // 如果日期为空，清空选择的月份
+      }
+    },
     /** 查询参数列表 */
     getList() {
       this.loading = true
       listRsHostIncome(this.addDateRange(this.formatQueryParams(this.queryParams), this.dateRange)).then(response => {
-            this.rsHostIncomeList = response.data.list
-            this.total = response.data.count
-            this.loading = false
-          }
-      )
+        this.rsHostIncomeList = response.data.list
+        this.total = response.data.count
+        this.loading = false
+      })
     },
     toHost(row) {
       this.$router.push({ path: '/cmdb/rs-host', query: { hostId: row.hostId }})

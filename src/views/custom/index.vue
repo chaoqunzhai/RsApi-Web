@@ -676,6 +676,7 @@ export default {
       getRsCustom(id).then(response => {
         this.form = this.convertFields(response.data, 'toString')
         this.form.region = response.data.region.split(',').map(e => Number(e))
+        this.form.user_region = response.data.user_region.split(',').map(e => Number(e))
         this.open = true
         this.title = '修改客户'
         this.isEdit = true

@@ -50,7 +50,7 @@ export function addRsCustomIntegration(data) {
 // 修改RsCustom
 export function updateRsCustomIntegration(data) {
   return request({
-    url: '/api/v1/rs-custom/integration' + data.id,
+    url: '/api/v1/rs-custom/integration/' + data.id,
     method: 'put',
     data: data
   })
