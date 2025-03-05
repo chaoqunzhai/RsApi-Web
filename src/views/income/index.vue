@@ -270,6 +270,29 @@
             >{{thisDay}}</span>
             <span class="unit">&nbsp;天;</span>
           </div>
+          <div class="count-item">
+            <span class="label">当月成本:</span>
+            <span
+                class="num"
+                style="color: red"
+            >{{monthCost}}</span>
+            <span class="unit">&nbsp;元;</span>
+          </div>
+          <div class="count-item">
+            <span class="label">当月结算收益:</span>
+            <span
+                class="num"
+                style="color: blue"
+            >{{monthIncome}}</span>
+            <span class="unit">&nbsp;元;</span>
+          </div>
+          <div class="count-item">
+            <span class="label">当月毛利润:</span>
+            <span
+                class="num"
+                style="color: #4CD964"
+            >{{monthProfit}}%</span>
+          </div>
         </div>
       </el-col>
       <div style="flex: 1">
@@ -431,6 +454,9 @@ export default {
     return {
       thisMonth:"",
       thisDay:"",
+      monthProfit:0,
+      monthCost:0,
+      monthIncome:0,
       // 遮罩层
       loading: true,
       // 选中数组
@@ -533,7 +559,9 @@ export default {
         this.loading = false
         this.thisMonth = response.data.list.month
         this.thisDay = response.data.list.day
-
+        this.monthIncome = response.data.list.monthIncome
+        this.monthCost = response.data.list.monthCost
+        this.monthProfit = response.data.list.monthProfit
         if (this.queryParams.incomeMonth === undefined){
           this.queryParams.incomeMonth = this.thisMonth
         }
