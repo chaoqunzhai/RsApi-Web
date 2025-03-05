@@ -202,7 +202,31 @@
             </el-select>
             </el-form-item>
           </el-col>
-
+          <el-col
+              :sm="24"
+              :xs="24"
+              :md="12"
+              :xl="6"
+              :lg="6"
+          >
+            <el-form-item
+                label="主机状态:"
+                prop="status"
+            ><el-select
+                v-model="queryParams.status"
+                placeholder="主机状态"
+                clearable
+                size="small"
+            >
+              <el-option
+                  v-for="dict in statusOptions"
+                  :key="dict.value"
+                  :label="dict.label"
+                  :value="dict.value"
+              />
+            </el-select>
+            </el-form-item>
+          </el-col>
           <el-col
             style="position: relative;right: 0;bottom: 0px;float: right;top: 6px"
             :sm="24"
@@ -265,6 +289,52 @@
               <a style="color: #1890ff" @click="toHost(scope.row)">
                 {{scope.row.remark}}
               </a>
+            </template>
+          </el-table-column>
+          <el-table-column
+              label="状态"
+              prop="status"
+              width="80"
+              :formatter="statusFormat"
+          >
+            <template slot-scope="scope">
+              <a-tooltip placement="topLeft">
+                <template slot="title">
+                  上报时间:{{ scope.row.healthyAt }}
+                </template>
+                <span v-if="scope.row.status == 1">
+                  <a-badge
+                      status="processing"
+                      :text="statusFormat(scope.row)"
+                  />
+                </span>
+                <span v-else-if="scope.row.status == -1">
+                  <a-badge
+                      status="error"
+                      :text="statusFormat(scope.row)"
+                  />
+                </span>
+                <span v-else>
+                  <a-badge
+                      status="default"
+                      :text="statusFormat(scope.row)"
+                  />
+                </span>
+              </a-tooltip>
+            </template>
+          </el-table-column>
+          <el-table-column
+              label="关联业务"
+              prop="business"
+              width="126"
+          >
+            <template slot-scope="scope">
+
+              <a-tag
+                  v-for="(item,index) in scope.row.business_list"
+                  :key="index"
+                  color="#108ee9"
+              >{{ item.label }}</a-tag>
             </template>
           </el-table-column>
           <el-table-column
@@ -412,6 +482,7 @@ export default {
         'value': 'code',
         'children': 'children'
       },
+      statusOptions:[],
       // 表单参数
       form: {
       },
@@ -440,9 +511,14 @@ export default {
     listRsIdc({ pageSize: -1 }).then(response => {
       this.idcIdOptions = response.data.list.map((item) => { return { label: item.number + item['name'], value: item['id'] + '' } })
     })
-
+    this.getDicts('host_status').then(response => {
+      this.statusOptions = response.data
+    })
   },
   methods: {
+    statusFormat(row) {
+      return this.selectDictLabel(this.statusOptions, row.status)
+    },
     detailClick(row) {
       this.$router.push({ path: '/income/detail',
         query: { hostId: row.id,month: this.queryParams.incomeMonth }})
