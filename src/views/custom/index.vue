@@ -172,7 +172,8 @@
              <template slot-scope="scope">
                {{ typeFormat(scope.row) }}
              </template>
-           </el-table-column><el-table-column
+           </el-table-column>
+          <el-table-column
              label="合作状态"
              align="center"
              prop="cooperation"
@@ -237,7 +238,7 @@
                 </el-button>
               </template>
             </el-table-column>
-          </el-table-column></el-table>
+          </el-table>
       </div>
       <div style="height: 45px;padding-top: 5px">
         <pagination
@@ -279,6 +280,7 @@
         ok-text="确定"
         cancel-text="取消"
         width="800px"
+        :style="{'top':'20px'}"
         @ok="submitForm"
         @cancel="cancel"
       >
@@ -288,8 +290,8 @@
           :rules="rules"
           label-width="120px"
         >
+          <el-divider content-position="left">客户信息</el-divider>
           <el-row>
-            <h3 >客户信息</h3>
             <el-col :span="12">
               <el-form-item
                 label="客户名称"
@@ -365,8 +367,8 @@
               </el-form-item>
             </el-col>
           </el-row>
+          <el-divider content-position="left">联系人信息</el-divider>
           <el-row>
-            <h3>联系人信息</h3>
             <el-col :span="12">
               <el-form-item
                   label="姓名"
@@ -480,6 +482,353 @@
               </el-form-item>
             </el-col>
           </el-row>
+          <el-divider content-position="left">合同信息</el-divider>
+
+          <el-row>
+            <el-col :span="12">
+              <el-form-item
+                  label="合同名称"
+                  prop="contract_name"
+              >
+                <el-input
+                    v-model="form.contract_name"
+                    placeholder="合同名称"
+                />
+              </el-form-item>
+            </el-col>
+            <el-col :span="12">
+              <el-form-item
+                  label="合同编号"
+                  prop="contract_number"
+              >
+                <el-input
+                    v-model="form.contract_number"
+                    placeholder="合同编号"
+                />
+              </el-form-item>
+            </el-col>
+            <el-col :span="12">
+              <el-form-item
+                  label="签订人"
+                  prop="contract_signatoryId"
+              >
+                <el-select
+                    filterable
+                    v-model="form.contract_signatoryId"
+                    placeholder="请选择"
+                >
+                  <el-option
+                      v-for="dict in signatoryIdOptions"
+                      :key="dict.value"
+                      :label="dict.label"
+                      :value="dict.value"
+                  />
+                </el-select>
+              </el-form-item>
+            </el-col>
+            <el-col :span="12">
+              <el-form-item
+                  label="合同类型"
+                  prop="contract_type"
+              >
+                <el-select
+                    v-model="form.contract_type"
+                    placeholder="请选择"
+                >
+                  <el-option
+                      v-for="dict in typeContractOptions"
+                      :key="dict.value"
+                      :label="dict.label"
+                      :value="dict.value"
+                  />
+                </el-select>
+              </el-form-item>
+            </el-col>
+            <el-col :span="12">
+              <el-form-item
+                  label="结算方式"
+                  prop="contract_settlementType"
+              >
+                <el-select
+                    v-model="form.contract_settlementType"
+                    placeholder="请选择"
+                >
+                  <el-option
+                      v-for="dict in settlementTypeOptions"
+                      :key="dict.value"
+                      :label="dict.label"
+                      :value="dict.value"
+                  />
+                </el-select>
+              </el-form-item>
+            </el-col>
+            <el-col :span="12">
+              <el-form-item
+                  label="合同开始日期"
+                  prop="contract_startTimeAt"
+              >
+                <el-date-picker
+                    v-model="form.contract_startTimeAt"
+                    style="width: 100%"
+                    value-format="yyyy-MM-dd"
+                    type="date"
+                    placeholder="选择日期"
+                />
+              </el-form-item>
+            </el-col>
+            <el-col :span="12">
+              <el-form-item
+                  label="合同结束日期"
+                  prop="contract_endTimeAt"
+              >
+                <el-date-picker
+                    v-model="form.contract_endTimeAt"
+                    style="width: 100%"
+                    value-format="yyyy-MM-dd"
+                    type="date"
+                    placeholder="选择日期"
+                />
+              </el-form-item>
+            </el-col>
+            <el-col :span="12">
+              <el-form-item
+                  label="开户名称"
+                  prop="contract_accountName"
+              >
+                <el-input
+                    v-model="form.contract_accountName"
+                    placeholder="开户名称"
+                />
+              </el-form-item>
+            </el-col>
+            <el-col :span="12">
+              <el-form-item
+                  label="银行账号"
+                  prop="contract_bankAccount"
+              >
+                <el-input
+                    v-model="form.contract_bankAccount"
+                    placeholder="银行账号"
+                />
+              </el-form-item>
+            </el-col>
+            <el-col :span="12">
+              <el-form-item
+                  label="开户银行"
+                  prop="contract_bankName"
+              >
+                <el-input
+                    v-model="form.contract_bankName"
+                    placeholder="开户银行"
+                />
+              </el-form-item>
+            </el-col>
+            <el-col :span="12">
+              <el-form-item
+                  label="纳税人识别号"
+                  prop="contract_identifyNumber"
+              >
+                <el-input
+                    v-model="form.contract_identifyNumber"
+                    placeholder="纳税人识别号"
+                />
+              </el-form-item>
+            </el-col>
+          </el-row>
+          <el-divider content-position="left">合同费用信息</el-divider>
+          <el-row>
+            <el-table
+                v-loading="loading"
+                border
+                :data="form.bandwidthFees"
+                @selection-change="handleSelectionChange"
+            >
+              <el-table-column
+                  width="180"
+                  align="center"
+                  prop="isp"
+                  :show-overflow-tooltip="true"
+              >
+                <template slot="header">
+                  <span style="color: #ff4949">*</span>运营商
+                </template>
+                <template slot-scope="scope">
+                  <el-select
+                      v-model="form.bandwidthFees[scope.$index].isp"
+                      placeholder="请选择"
+                  >
+                    <el-option
+                        v-for="dict in ispOptions"
+                        :key="dict.value"
+                        :label="dict.label"
+                        :value="dict.value"
+                    />
+                  </el-select>
+                </template>
+              </el-table-column>
+              <el-table-column
+                  align="center"
+                  prop="up"
+                  width="180"
+              >
+                <template slot="header">
+                  <span style="color: #ff4949">*</span>上行带宽(M)
+                </template>
+                <template slot-scope="scope">
+                  <el-input-number
+                      v-model="form.bandwidthFees[scope.$index].up"
+                      style="width: 100%"
+                      placeholder="请输入"
+                      :min="0"
+                      :max="999999"
+                  />
+                </template>
+              </el-table-column>
+              <el-table-column
+                  label="下行带宽(M)"
+                  align="center"
+                  prop="down"
+                  width="180"
+              >
+                <template slot-scope="scope">
+                  <el-input-number
+                      v-model="form.bandwidthFees[scope.$index].down"
+                      style="width: 100%"
+                      placeholder="请输入"
+                      :min="0"
+                      :max="999999"
+                  />
+                </template>
+              </el-table-column>
+              <el-table-column
+                  align="center"
+                  prop="charging"
+                  width="180"
+              >
+                <template slot="header">
+                  <span style="color: #ff4949">*</span>计费方式
+                </template>
+                <template slot-scope="scope">
+                  <el-select
+                      v-model="form.bandwidthFees[scope.$index].charging"
+                      placeholder="请选择"
+                  >
+                    <el-option
+                        v-for="dict in chargingOptions"
+                        :key="dict.value"
+                        :label="dict.label"
+                        :value="dict.value"
+                    />
+                  </el-select>
+                </template>
+              </el-table-column>
+              <el-table-column
+                  label="业务线单价(元/M)"
+                  align="center"
+                  prop="linePrice"
+                  width="180"
+              >
+                <template slot="header">
+                  <span style="color: #ff4949">*</span>业务线单价(元/M/月)
+                </template>
+                <template slot-scope="scope">
+                  <el-input-number
+                      v-model="form.bandwidthFees[scope.$index].linePrice"
+                      style="width: 100%"
+                      placeholder="请输入"
+                      :min="0"
+                      :max="999999"
+                  />
+                </template>
+              </el-table-column>
+              <el-table-column
+                  align="center"
+                  prop="managerLineCost"
+                  width="180"
+              >
+                <template slot="header">
+                  <span style="color: #ff4949">*</span>管理线价格(元/条/月)
+                </template>
+                <template slot-scope="scope">
+                  <el-input-number
+                      v-model="form.bandwidthFees[scope.$index].managerLineCost"
+                      style="width: 100%"
+                      placeholder="请输入"
+                      :min="0"
+                      :max="999999"
+                  />
+                </template>
+              </el-table-column>
+              <el-table-column
+                  align="center"
+                  prop="transProd"
+                  width="180"
+              >
+                <template slot="header">
+                  <span style="color: #ff4949">*</span>是否可跨省
+                </template>
+                <template slot-scope="scope">
+                  <el-select
+                      v-model="form.bandwidthFees[scope.$index].transProd"
+                      placeholder="请选择"
+                  >
+                    <el-option
+                        v-for="dict in transProdOptions"
+                        :key="dict.value"
+                        :label="dict.label"
+                        :value="dict.value"
+                    />
+                  </el-select>
+                </template>
+              </el-table-column>
+              <el-table-column
+                  label="是否支持多拨"
+                  align="center"
+                  prop="moreDialing"
+                  width="180"
+              >
+                <template slot-scope="scope">
+                  <el-select
+                      v-model="form.bandwidthFees[scope.$index].moreDialing"
+                      placeholder="请选择"
+                  >
+                    <el-option
+                        v-for="dict in moreDialingOptions"
+                        :key="dict.value"
+                        :label="dict.label"
+                        :value="dict.value"
+                    />
+                  </el-select>
+                </template>
+              </el-table-column>
+              <el-table-column
+                  width="180"
+                  fixed="right"
+                  label="操作"
+                  align="center"
+                  class-name="small-padding fixed-width"
+              >
+                <template slot-scope="scope">
+                  <el-button
+                      size="mini"
+                      type="text"
+                      icon="el-icon-copy-document"
+                      @click="copyRow(scope.row)"
+                  >复制
+                  </el-button>
+                  <el-button
+                      slot="reference"
+                      v-permisaction="['admin:rsCustom:remove']"
+                      size="mini"
+                      type="text"
+                      icon="el-icon-delete"
+                      @click="deleteRow(scope.$index)"
+                  >删除
+                  </el-button>
+                </template>
+              </el-table-column>
+            </el-table>
+          </el-row>
         </el-form>
       </a-modal>
     </template>
@@ -498,6 +847,7 @@ import {
 
 import Detail from './detail.vue'
 import {getUserlistByRole} from "@/api/admin/sys-role";
+import {listUser} from "@/api/admin/sys-user";
 
 export default {
   name: 'RsCustom',
@@ -532,7 +882,7 @@ export default {
       },
       typeOptions: [], cooperationOptions: [], regionOptions: [],
       // 关系表类型
-
+      signatoryIdOptions: [], typeContractOptions: [],
       // 查询参数
       queryParams: {
         pageIndex: 1,
@@ -545,8 +895,12 @@ export default {
       // 表单参数
       form: {
       },
+      ispOptions:[],chargingOptions:[],
+      transProdOptions:[],
+      moreDialingOptions:[],
       customIdOptions: [],
       buIdOptions: [],
+      settlementTypeOptions:[],
       rowId: undefined,
       // 表单校验
       rules: {
@@ -557,7 +911,12 @@ export default {
         buId: [{ required: true, message: '商务人员不能为空', trigger: 'blur' }],
         region: [{ required: true, message: '所在地区不能为空', trigger: 'blur' }],
         address: [{ required: true, message: '详细地址不能为空', trigger: 'blur' }],
-        phone: [{ required: true, message: '联系电话不能为空', trigger: 'blur' }]
+        phone: [{ required: true, message: '联系电话不能为空', trigger: 'blur' }],
+        contract_signatoryId: [{ required: true, message: '合同签订人不能为空', trigger: 'blur' }],
+        contract_type: [{ required: true, message: '合同类型不能为空', trigger: 'blur' }],
+        contract_settlementType: [{ required: true, message: '结算方式不能为空', trigger: 'blur' }],
+        contract_startTimeAt: [{ required: true, message: '合同开始日期不能为空', trigger: 'blur' }],
+        contract_endTimeAt: [{ required: true, message: '合同结束日期不能为空', trigger: 'blur' }]
       }
     }
   },
@@ -566,19 +925,46 @@ export default {
     this.getDicts('customer_type').then(response => {
       this.typeOptions = response.data
     })
+    this.getDicts('isp').then(response => {
+      this.ispOptions = response.data
+    })
+    this.getDicts('charging').then(response => {
+      this.chargingOptions = response.data
+    })
+    this.getDicts('sys_yes_no').then(response => {
+      this.moreDialingOptions = response.data
+      this.transProdOptions = response.data
+    })
     this.getDicts('work_status').then(response => {
       this.cooperationOptions = response.data
     })
-
+    listUser({ pageSize: -1 }).then(response => {
+      this.signatoryIdOptions = this.toDictData(response.data.list, 'nickName', 'userId')
+    })
     listRsCustom({ pageSize: -1 }).then(response => {
       this.customIdOptions = this.toDictData(response.data.list, 'name', 'id')
     })
     getUserlistByRole({ name: 'business_user' }).then(response => {
       this.buIdOptions = this.toDictData(response.data.list, 'nickName', 'userId')
     })
+    this.getDicts('contract_type').then(response => {
+      this.typeContractOptions = response.data
+    })
+    this.getDicts('settlement_type').then(response => {
+      this.settlementTypeOptions = response.data
+    })
     this.regionOptions = this.$store.getters.region
   },
   methods: {
+    copyRow(row) {
+      row.id = undefined
+      this.form.bandwidthFees.push({ ...row })
+    },
+    deleteRow(index) {
+      if (this.form.bandwidthFees.length > 1) {
+        this.form.bandwidthFees.splice(index, 1)
+      }
+    },
     /** 查询参数列表 */
     getList() {
       this.loading = true
@@ -596,14 +982,33 @@ export default {
     // 表单重置
     reset() {
       this.form = {
-
         id: undefined,
         desc: undefined,
         name: undefined,
         type: undefined,
         cooperation: undefined,
         region: undefined,
-        address: undefined
+        address: undefined,
+        contract_settlementType: undefined,
+        contract_startTimeAt: undefined,
+        contract_endTimeAt: undefined,
+        contract_accountName: undefined,
+        contract_bankAccount: undefined,
+        contract_bankName: undefined,
+        contract_identifyNumber: undefined,
+        bandwidthFees: [
+          {
+            id: undefined,
+            isp: undefined,
+            up: undefined,
+            down: undefined,
+            linePrice: undefined,
+            managerLineCost: undefined,
+            charging: undefined,
+            transProd: undefined,
+            moreDialing: undefined
+          }
+        ]
       }
       this.resetForm('form')
     },
@@ -686,29 +1091,30 @@ export default {
     submitForm: function() {
       this.$refs['form'].validate(valid => {
         if (valid) {
-          if (this.form.id !== undefined) {
-            updateRsCustomIntegration({ ...this.convertFields(this.form, 'toNumber'),
-              region: this.form.region.join(','), user_region: this.form.user_region.join(',') }).then(response => {
-              if (response.code === 200) {
-                this.msgSuccess(response.msg)
-                this.open = false
-                this.getList()
-              } else {
-                this.msgError(response.msg)
-              }
-            })
-          } else {
-            addRsCustomIntegration({ ...this.convertFields(this.form, 'toNumber'),
-              region: this.form.region.join(','),user_region: this.form.user_region.join(',') }).then(response => {
-              if (response.code === 200) {
-                this.msgSuccess(response.msg)
-                this.open = false
-                this.getList()
-              } else {
-                this.msgError(response.msg)
-              }
-            })
-          }
+          console.log("this.form",this.form)
+          // if (this.form.id !== undefined) {
+          //   updateRsCustomIntegration({ ...this.convertFields(this.form, 'toNumber'),
+          //     region: this.form.region.join(','), user_region: this.form.user_region.join(',') }).then(response => {
+          //     if (response.code === 200) {
+          //       this.msgSuccess(response.msg)
+          //       this.open = false
+          //       this.getList()
+          //     } else {
+          //       this.msgError(response.msg)
+          //     }
+          //   })
+          // } else {
+          //   addRsCustomIntegration({ ...this.convertFields(this.form, 'toNumber'),
+          //     region: this.form.region.join(','),user_region: this.form.user_region.join(',') }).then(response => {
+          //     if (response.code === 200) {
+          //       this.msgSuccess(response.msg)
+          //       this.open = false
+          //       this.getList()
+          //     } else {
+          //       this.msgError(response.msg)
+          //     }
+          //   })
+          // }
         }
       })
     },
