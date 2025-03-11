@@ -1023,6 +1023,10 @@ export default {
       fieldsToConvert.push('region')
       fieldsToConvert.push('user_region')
       fieldsToConvert.push('buId')
+
+      fieldsToConvert.push('contract_signatoryId')
+      fieldsToConvert.push('contract_type')
+      fieldsToConvert.push('contract_settlementType')
       // 遍历字段并进行转换
       fieldsToConvert.forEach(field => {
         if (mode === 'toString' && typeof result[field] === 'number') {
@@ -1059,6 +1063,14 @@ export default {
       this.title = '添加客户'
       this.isEdit = false
     },
+    convertToString(arr) {
+      return arr.map(item => {
+        return Object.keys(item).reduce((acc, key) => {
+          acc[key] = item[key].toString()
+          return acc
+        }, {})
+      })
+    },
     // 多选框选中数据
     handleSelectionChange(selection) {
       this.ids = selection.map(item => item.id)
@@ -1081,10 +1093,20 @@ export default {
       getRsCustom(id).then(response => {
         this.form = this.convertFields(response.data, 'toString')
         this.form.region = response.data.region.split(',').map(e => Number(e))
+        this.form.bandwidthFees = this.convertToString(this.form.bandwidthFees)
         this.form.user_region = response.data.user_region.split(',').map(e => Number(e))
         this.open = true
         this.title = '修改客户'
         this.isEdit = true
+        this.$forceUpdate()
+      })
+    },
+    convertToNumbers(arr) {
+      return arr.map(item => {
+        return Object.keys(item).reduce((acc, key) => {
+          acc[key] = Number(item[key])
+          return acc
+        }, {})
       })
     },
     /** 提交按钮 */
@@ -1092,29 +1114,42 @@ export default {
       this.$refs['form'].validate(valid => {
         if (valid) {
           console.log("this.form",this.form)
-          // if (this.form.id !== undefined) {
-          //   updateRsCustomIntegration({ ...this.convertFields(this.form, 'toNumber'),
-          //     region: this.form.region.join(','), user_region: this.form.user_region.join(',') }).then(response => {
-          //     if (response.code === 200) {
-          //       this.msgSuccess(response.msg)
-          //       this.open = false
-          //       this.getList()
-          //     } else {
-          //       this.msgError(response.msg)
-          //     }
-          //   })
-          // } else {
-          //   addRsCustomIntegration({ ...this.convertFields(this.form, 'toNumber'),
-          //     region: this.form.region.join(','),user_region: this.form.user_region.join(',') }).then(response => {
-          //     if (response.code === 200) {
-          //       this.msgSuccess(response.msg)
-          //       this.open = false
-          //       this.getList()
-          //     } else {
-          //       this.msgError(response.msg)
-          //     }
-          //   })
-          // }
+          const needValid = ['isp', 'up', 'down', 'linePrice', 'managerLineCost', 'charging', 'transProd']
+          this.form.bandwidthFees.forEach((item) => {
+            Object.keys(item).forEach(key => {
+              if (needValid.includes(key) && item[key] === undefined) {
+                this.msgError('请完善费用信息')
+                throw new Error(`${key}不能为空`)
+              }
+            })
+          })
+          const result = {
+            ...this.convertFields(this.form, 'toNumber'),
+            bandwidthFees: this.convertToNumbers(this.form.bandwidthFees)
+          }
+          if (this.form.id !== undefined) {
+            updateRsCustomIntegration({ ...result,
+              region: this.form.region.join(','), user_region: this.form.user_region.join(',') }).then(response => {
+              if (response.code === 200) {
+                this.msgSuccess(response.msg)
+                this.open = false
+                this.getList()
+              } else {
+                this.msgError(response.msg)
+              }
+            })
+          } else {
+            addRsCustomIntegration({  ...result,
+              region: this.form.region.join(','),user_region: this.form.user_region.join(',') }).then(response => {
+              if (response.code === 200) {
+                this.msgSuccess(response.msg)
+                this.open = false
+                this.getList()
+              } else {
+                this.msgError(response.msg)
+              }
+            })
+          }
         }
       })
     },
