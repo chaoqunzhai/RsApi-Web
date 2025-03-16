@@ -1064,6 +1064,23 @@ export default {
       this.isEdit = false
     },
     convertToString(arr) {
+      console.log("convertToString",arr)
+      if (arr === null) {
+
+        return [
+          {
+            id: undefined,
+            isp: undefined,
+            up: undefined,
+            down: undefined,
+            linePrice: undefined,
+            managerLineCost: undefined,
+            charging: undefined,
+            transProd: undefined,
+            moreDialing: undefined
+          }
+        ]
+      }
       return arr.map(item => {
         return Object.keys(item).reduce((acc, key) => {
           acc[key] = item[key].toString()
